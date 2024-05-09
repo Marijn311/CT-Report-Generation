@@ -24,7 +24,7 @@ The dataset should be formatted as:
 │   │   │   [IMAGE_FILE_NAME]<br>
 │   │   ...<br>
 │   │   labels.xlsx<br>
-│   │   verslagen.docs<br>
+│   │   reports.docs<br>
 │   [hospital_name_2]<br>
 │   │   [hospital_name_2]_[pseudo_id_1]<br>
 │   │   │   [IMAGE_FILE_NAME]<br>
@@ -32,7 +32,7 @@ The dataset should be formatted as:
 │   │   │   [IMAGE_FILE_NAME]<br>
 │   │   ...<br>
 │   │   labels.xlsx<br>
-│   │   verslagen.docs<br>
+│   │   reports.docs<br>
 │   ...<br>
 │   all_labels.xlsx<br>
 │   all_reports.docs<br>
