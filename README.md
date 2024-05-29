@@ -1,7 +1,7 @@
 # CT-To-Report
 
 ## Description
-This is the Python implementation of the work presented in "Recognise and Describe: Automatically Generating Narrative-Style Radiology Reports from Volumetric CT Images, a Proof of Concept", available on [ArXiv](todo: include hyperlink) and this repository.
+This is the Python implementation of the work presented in "Automatically Generating Narrative-Style Radiology Reports from Volumetric CT Images; a Proof of Concept", available on [ArXiv](todo: include hyperlink) and this repository.
 
 This repository is split into 3 main sections: <br>
 * "Encoder" contains a Pytorch Lightning framework to train a multi-label classification model on volumetric imaging data.<br>
