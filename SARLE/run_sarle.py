@@ -10,11 +10,9 @@ from visualizations import *
 2. Term search: extracting abnormality (and location) labels.
 3. Saving the results to files: the classification labels that can be used later in a computer vision classification model. Also the of the sentece classification and term search results are saved such that they quality can be inspected.
 4. Visualizing the results: showing the distribution of the extracted labels.
-
 """
 
-
-def generate_labels(train_data, test_data, predict_data,
+def generate_labels(train_data_raw, test_data_raw, predict_data_raw,
                     sarle_variant, use_other_abnormality, use_other_location):
     """Generate a matrix of abnormality x location labels for each
     narrative-style radiology report in the dataset.
@@ -32,17 +30,12 @@ def generate_labels(train_data, test_data, predict_data,
         we create a label called "other location" when we find a abnormality but do not recognise a location.
    """
     
-    
     #Set up results dirs
-    setup = [sarle_variant, use_other_abnormality, use_other_location]
-    _, sent_class_dir, term_search_dir = configure_results_dirs(*setup) #make a directory to store the results/output in
+    _, sent_class_dir, term_search_dir = configure_results_dirs(sarle_variant) #make a directory to store the results/output in
     
-
-  
-    # train_data = copy.deepcopy(train_data_raw)
-    # test_data = copy.deepcopy(test_data_raw)
-    # predict_data = copy.deepcopy(predict_data_raw)
-
+    train_data = copy.deepcopy(train_data_raw)
+    test_data = copy.deepcopy(test_data_raw)
+    predict_data = copy.deepcopy(predict_data_raw)
 
     ######################################################################################################################
     #Step 1: Sentence/Phrase Classification------------------------------------------------------------------------------
@@ -59,7 +52,6 @@ def generate_labels(train_data, test_data, predict_data,
         # print(f"Example of a the data in a predict datapoint:\n{example}")
         if train_data.shape[0] == 0:
             print("No train data was provided so no evaluation of phase 1 is possible.")
-        #todo add sentence classification evaluation
         
         """
         The 9 columns of the precdit dataframes are:
@@ -107,6 +99,3 @@ def generate_labels(train_data, test_data, predict_data,
     ######################################################################################################################
     print("\nStarting Phase 4: Showing extracted abnormalities in the predict dataset\n")
     generate_visualizations()
-
-    
-

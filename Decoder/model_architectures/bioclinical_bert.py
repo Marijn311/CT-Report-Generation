@@ -40,22 +40,22 @@ class bioclinical_bert_decoder_architecture(pl.LightningModule):
             self.img_embedding = nn.Embedding(NR_IMG_TOKENS, HIDDEN_SIZE).to('cuda') 
 
       
-    
     def forward(self, images, reports):
 
         # Process the encoded images to the correct dimensions
         if REPRESENTATION == 'feature_map':
+            images = einops.reduce(images, 'b chunks channels f1 f2 -> b chunks f1 f2', 'mean')        # Average the channels of the feature maps 
             images = einops.rearrange(images, 'b c f1 f2 -> b c (f1 f2)')                               # Flatten the features maps
+            images = einops.rearrange(images, 'b c fv -> (b c) fv')                                     # Combine the batch and chunks dimensions, to make the linear layer work
             images = self.reshape_to_hidden_size(images)                                                # Reshape the flatted featuremap to HIDDEN_SIZE
-            #todo is a normalisation or activation function needed after this linear layer to make sure the image embeddings are in a certain range?
+            images = einops.rearrange(images, '(b c) fv -> b c fv', b=BATCH_SIZE)                       # Uncombine the batch and chunks dimensions
             
         if REPRESENTATION == 'token':
-            min_value = 0
-            max_value = 40                                                                              # This may change depending on the encoder model and dataset that was used. Set SHOW_DATA_EXAMPLES to True in config.py to see the min and max values of the encoded images. Choose a range that covers most of the values.  
-            images = torch.clamp(images, min=min_value, max=max_value)                                  # Clamp the encoded images (which are logits values from a ReLu layer) to a fixed range
-            scaled_values = (((images - min_value) / (max_value - min_value)) * (NR_IMG_TOKENS-1))      # Scale the clamped values to the range [0, NR_IMG_TOKENS-1]
+            images = torch.clamp(images, min=0, max=MAX_ENC_IMG_VALUE)                                  # Clamp the encoded images (which are logits values from a ReLu layer) to a fixed range
+            scaled_values = (((images) / (MAX_ENC_IMG_VALUE)) * (NR_IMG_TOKENS-1))                      # Scale the clamped values to the range [0, NR_IMG_TOKENS-1]
             integer_values = torch.round(scaled_values).to(torch.int)                                   # Round the scaled values to integers. The "integer values" are effectively the image tokens.
             images = self.img_embedding(integer_values)                                                 # Embed the integer values to the hidden size of the model
+                                              
 
         # Make a mask for the reports to prevent attention on padding tokens
         reports_attention_mask = torch.where(reports != PAD_IDX, torch.tensor(1), torch.tensor(0))

@@ -59,6 +59,3 @@ def generate_visualizations():
     plt.ylabel('Frequency')
     plt.title(f'Frequency of abnormality labels in the dataset. Number of samples = {nr_rows}')
     plt.show()
-
-
- 

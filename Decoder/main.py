@@ -12,7 +12,8 @@ torch.cuda.manual_seed_all(RANDOM_SEED)
 
 
 if __name__ == '__main__':
-    """This is the main script. This is the only .py file that should be ran.
+    """
+    This is the main script. This is the only .py file that should be ran.
     This scripts loads a PyTorch Lightning model and data module.
     
     Depending on the configurations in config.py it either fits, validates, or performs autoregressive predictions

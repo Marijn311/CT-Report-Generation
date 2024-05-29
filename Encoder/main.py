@@ -2,7 +2,7 @@ import pytorch_lightning as pl
 from config import *
 from dataset import data_module
 from model import model
-from pytorch_lightning.callbacks import ModelCheckpoint, TQDMProgressBar, EarlyStopping, Callback, LearningRateFinder
+from pytorch_lightning.callbacks import ModelCheckpoint
 
 #Set seeds
 torch.manual_seed(RANDOM_SEED)
@@ -40,14 +40,18 @@ if __name__ == '__main__':
         max_epochs=NUM_EPOCHS, 
         precision=PRECISION, 
         log_every_n_steps=10,
-        val_check_interval=1, 
         callbacks=[checkpoint_callback],
         ) 
     
     
     # Either fit, validate, or test the model
     if STAGE == "fit":
-        trainer.fit(model, data_module)
+        if SAVE_ENCODED_IMAGES == False:
+            trainer.fit(model, data_module)
+        else:
+            checkpoint = torch.load(CKPT_PATH_TO_LOAD)
+            model.load_state_dict(checkpoint['state_dict'])
+            trainer.validate(model, data_module)
    
     if STAGE == "validate":
         checkpoint = torch.load(CKPT_PATH_TO_LOAD)

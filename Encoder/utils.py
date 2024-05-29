@@ -20,10 +20,10 @@ def save_feature_maps(cloned_features):
     The function requires some specific settings to function propperly.
     Follow the instructions precisely, else you might overwrite some existing files with corrupted files.
     
-    1. Set the nr of epochs to 1 in config.py 
-    2. Set batchsize to 1 in config.py
-    3. Set the num_sanity_val_steps to the total number of images in the dataset (sum of train/val/test) in main.py
-    4. Change self.val_ds to self.entire_ds in the validation dataloader in dataset.py
+    1. Set stage to validate in config.py
+    2. Set the nr of epochs to 1 in config.py 
+    3. Set batchsize to 1 in config.py
+    4. Change self.val_ds to self.entire_ds in the validation dataloader in dataset.py, make sure Shuffle is set to False
     5. Set DATA_AUGMENT to False in config.py
     6. Set the IMAGE_FILE_NAME in config.py to be the .nrrd file that you want to save the features of. This should NOT be .pt file.
     7. Set the FILE_NAME in the code below, the file_name should be the name of the .pt file under which the features will be saved.
@@ -39,7 +39,8 @@ def save_feature_maps(cloned_features):
     assert BATCH_SIZE == 1, "BATCH_SIZE should be 1 to save the features to a .pt file" 
     assert NUM_EPOCHS == 1, "NUM_EPOCHS should be 1 to save the features to a .pt file"
     assert DATA_AUGMENT == False, "DATA_AUGMENT should be False to save the features to a .pt file"
-    
+    assert STAGE == "validate", "STAGE should be validate, because this will load the weights and process all images"
+
     # Create a pop message informing the user that it is important to follow the instructions
     root = tk.Tk()
     root.withdraw() 
@@ -75,19 +76,18 @@ def save_encoded_images(x):
     The function requires some specific settings to function propperly.
     Follow the instructions precisely, else you might overwrite some existing files with corrupted files.
     
-    1. Set the nr of epochs to 1 in config.py 
-    2. Set batchsize to 1 in config.py
-    3. Set the num_sanity_val_steps to the total number of images in the dataset (sum of train/val/test) in main.py
-    4. Change self.val_ds to self.entire_ds in the validation dataloader in dataset.py
+    1. Set stage to validate in config.py
+    2. Set the nr of epochs to 1 in config.py 
+    3. Set batchsize to 1 in config.py
+    4. Change self.val_ds to self.entire_ds in the validation dataloader in dataset.py. Make sure Shuffle is set to False
     5. Set DATA_AUGMENT to False in config.py
-    6. Set the IMAGE_FILE_NAME in config.py to be the .nrrd file that you want to save the features of. This should NOT be .pt file.
-    7. Set the FILE_NAME in the code below, the file_name should be the name of the .pt file under which the features will be saved.
+    6. Set the IMAGE_FILE_NAME in config.py to be the feature map file that you want to save the features of. This should be .pt file and it will also create a .pt file.
+    7. Set the FILE_NAME in the code below, the file_name should be the name of the .pt file under which the encoded image will be saved.
     8. Check if the .pt file you want to create already exists in any folder. If that is the case we don't want to run this script because it will save the first feature tensor in the first folder WHERE THIS FILE DOES NOT EXIST. This is not necessarily the first folder in the dataset. So if any of the files already exists, we have to delete them first.             
     9. Set SHOW_DATA_EXAMPLES to True in config.py, and verify that the first image that is loaded is the first image of the first hospital etc (so verify that the images are not shuffled)
     10. If everything is set up correctly, turn off the SHOW_DATA_EXAMPLES again and run the code. It will save the features to a .pt file in the correct folder.
     11. Dont forget to undo these changes when you are done with making .pt files 
     """ 
-
 
     FILENAME = 'ct_net_3d_convs_mirroredness_1_a.pt' 
    
@@ -95,14 +95,8 @@ def save_encoded_images(x):
     assert BATCH_SIZE == 1, "BATCH_SIZE should be 1 to save the features to a .pt file" 
     assert NUM_EPOCHS == 1, "NUM_EPOCHS should be 1 to save the features to a .pt file"
     assert DATA_AUGMENT == False, "DATA_AUGMENT should be False to save the features to a .pt file"
-    assert STAGE == "fit", "STAGE should be fit to save the features to a .pt file"
+    assert STAGE == "validate", "STAGE should be validate, because this will load the weights and process all images"
 
-    # Create a pop message informing the user that it is important to follow the instructions
-    root = tk.Tk()
-    root.withdraw() 
-    messagebox.showinfo("ATTENTION", "Make sure that you have followed the instructions in the save_feature_maps function in utils.py.")
-    root.mainloop()
-    
     # Loop over all patients and save the features to the first empty folder
     for root, hospital_folders, _ in os.walk(IMAGE_DIR): 
         for hospital_folder in hospital_folders: 

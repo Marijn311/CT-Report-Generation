@@ -1,5 +1,7 @@
-"""This script contains the vocabulary to find abnormalities in the reports.
-The "medically abnormal" sentences are search for either a word in the "Any" list or for a combination of a "Term1" and "Term2" word.
+"""
+This script contains the vocabulary to find abnormalities in the reports.
+The "medically abnormal" sentences are search for either a word in the "Any" list 
+or for a combination of a "Term1" and "Term2" word.
 
 NOTE: The script searches for the strings defined below in the report sentences which are large strings. 
 For example: If you search for 'long' it will also find 'longitudinal' and 'belonging'.

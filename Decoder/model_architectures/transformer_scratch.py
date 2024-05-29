@@ -4,7 +4,8 @@ import torch
 import pytorch_lightning as pl
 
 class transformer_scratch_architecture(pl.LightningModule):
-    """This class defines the architecture of a transformer-based decoder model that was implemented from scratch.
+    """
+    This class defines the architecture of a transformer-based decoder model that was implemented from scratch.
     This implementation is based on a tutorial by https://www.youtube.com/watch?v=U0s0f995w14
     This model does not load any pretrained weights or embeddings, it is trained from scratch.
    

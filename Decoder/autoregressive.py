@@ -4,7 +4,8 @@ import evaluate #pip3 install evaluate
 
     
 class autoregressive():
-    """Class to perform autoregressive inference with a PyTorch decoder model.
+    """
+    Class to perform autoregressive inference with a PyTorch decoder model.
     
     Transformer models use parallelization and teacher forcing during training (and validation). 
     This means that every word in a sequence is predicted at once, using all previous words in the ground truth as input/context for the model.  
@@ -108,7 +109,6 @@ class autoregressive():
             gen_report = clean_gen_report
             gen_report = [x for x in gen_report if x != '<PAD>' and x != '[PAD]' and x != 'sos' and x != 'eos' and x != '[CLS]' and x != '[SEP]']    #remove any occurances of pad 
             gen_report = ' '.join(gen_report)
-            #fix for bioclinical bert the sup word tokens need to be joined into normal tokens again before we pass them top blue en meter etc
             gt_report = [self.token_to_word[idx] for idx in gt_report]
             gt_report = [x for x in gt_report if x != '<PAD>' and x != '[PAD]' and x != 'sos' and x != 'eos' and x != '[CLS]' and x != '[SEP]']    #remove any occurances of pad or sos os eos
             gt_report = ' '.join(gt_report)
@@ -117,17 +117,22 @@ class autoregressive():
             print(f"\nPrediction: {gen_report}")
             
             # Calculate NLP metrics and store them in a dataframe
-            bleu_score = self.bleu.compute(predictions=[gen_report], references=[gt_report])
-            meteor_score = self.meteor.compute(predictions=[gen_report], references=[gt_report])
-            rouge_score = self.rouge.compute(predictions=[gen_report], references=[gt_report])
-            
-            print(f"\nBLEU SCORE: {bleu_score}") 
-            print(f"\nMETEOR SCORE: {round(meteor_score['meteor'], 2)}")
-            print(f"\nROUGE SCORE: {rouge_score}")
+            if ARCHITECTURE != 'biogpt':
+                #todo 
+                #The bio+clinincal bert model uses subwords as tokens.
+                #the predicted subwords need to be joined into normal words again before they can be passed to the NLP metrics.
                 
-            new_metrics = pd.DataFrame({'bleu': [bleu_score['bleu']], 'bleu1': [bleu_score['precisions'][0]], 'bleu2': [bleu_score['precisions'][1]], 'bleu3': [bleu_score['precisions'][2]], 'bleu4': [bleu_score['precisions'][3]], 'meteor': [meteor_score['meteor']], 'rouge1': [rouge_score['rouge1']], 'rouge2': [rouge_score['rouge2']]})
-            self.metrics = pd.concat([self.metrics, new_metrics], ignore_index=True)
-            
+                bleu_score = self.bleu.compute(predictions=[gen_report], references=[gt_report])
+                meteor_score = self.meteor.compute(predictions=[gen_report], references=[gt_report])
+                rouge_score = self.rouge.compute(predictions=[gen_report], references=[gt_report])
+                
+                print(f"\nBLEU SCORE: {bleu_score}") 
+                print(f"\nMETEOR SCORE: {round(meteor_score['meteor'], 2)}")
+                print(f"\nROUGE SCORE: {rouge_score}")
+                    
+                new_metrics = pd.DataFrame({'bleu': [bleu_score['bleu']], 'bleu1': [bleu_score['precisions'][0]], 'bleu2': [bleu_score['precisions'][1]], 'bleu3': [bleu_score['precisions'][2]], 'bleu4': [bleu_score['precisions'][3]], 'meteor': [meteor_score['meteor']], 'rouge1': [rouge_score['rouge1']], 'rouge2': [rouge_score['rouge2']]})
+                self.metrics = pd.concat([self.metrics, new_metrics], ignore_index=True)
+                
             
     def autoregressive_inference(self):
         """Perform autoregressive inference on the entire dataset. This function calls on print_predictions and evaluate_predictions."""

@@ -56,13 +56,14 @@ class convs_3d_classifier(pl.LightningModule):
       
         # Define shape after the 3D convolutions. This shape is needed to intialise the fully connected layers.
         # Unfortunately, the shape after the 3D convolutions is dependent on the exact architecture and image size and needs to be known BEFORE the forward pass.
-        # As a solution we manually define the shape here for the cases i am working with but this is not a great general solution.
-        if ARCHITECTURE == 'ct_net' and IMAGE_SIZE == [390, 400, 400]:
+        # As a solution we manually define the shape here for the cases I am working with but this is not a great general solution.
+        if IMAGE_SIZE == [130, 512, 13, 13]:
             convs_output_shape = 4608 #16 *18 *4 *4
-        elif ARCHITECTURE == 'medical_net' and IMAGE_SIZE == [254, 260, 260]: 
+        elif IMAGE_SIZE == [512, 16, 17, 17]: 
+            convs_output_shape = 3456 #16 *6 *6 *6
             convs_output_shape = 3456 #16 *6 *6 *6
         else:
-            assert False, "The convs_output_shape for the chosen IMAGE_SIZE and ARCHITECTURE combination has not yet been defined."
+            assert False, "The convs_output_shape for the chosen IMAGE_SIZE has not yet been defined."
             
             
         # Define the fully connected layers
@@ -75,7 +76,9 @@ class convs_3d_classifier(pl.LightningModule):
             nn.Dropout(0.5),
             nn.Linear(96, NUM_CLASSES)).to("cuda")
         
-       
+        # Define the encoded image extractor. This is used to save the encoded images (states of the model before the final layer) to a .pt file.
+        # This has to be defined in the __init__ function else it will not be initialized with the trained weights.
+        self.encoded_image_extractor = nn.Sequential(*list(self.fc_layers.children())[:-2]).to("cuda")
    
     def forward(self, x):
         """Perform the forward pass of the model."""
@@ -84,16 +87,16 @@ class convs_3d_classifier(pl.LightningModule):
         x = self.convs_3d(x) 
         
         # Flatten the output of the 3D convolutions
-        x = einops.rearrange(x, 'batch d2 d3 d4 -> b (d2 d3 d4)')
+        x = einops.rearrange(x, 'batch d1 d2 d3 d4 -> batch (d1 d2 d3 d4)')
         
         # Pass the flattened output through the fully connected layers. Save the encoded images (states of the model before the final layer) to a .pt file
         if SAVE_ENCODED_IMAGES == True:
-            encoded_image_extractor = nn.Sequential(*list(self.fc_layers.children())[:-2]).to("cuda")
-            encoded_images = encoded_image_extractor(x)
+            fc_layers_minus_1 = nn.Sequential(*list(self.fc_layers.children())[:-2]).to("cuda")
+            encoded_images = fc_layers_minus_1(x)
             save_encoded_images(encoded_images)
-            logits = torch.randn(BATCH_SIZE, NUM_CLASSES).to("cuda") # Create dummy tensor so the model wont give errors while saving the encoded images
+            last_fc_layer = nn.Sequential(*list(self.fc_layers.children())[-2:]).to("cuda")
+            logits = last_fc_layer(encoded_images)
         else: 
-            # Pass the flattened output through the fully connected layers
             logits = self.fc_layers(x)
         
         return logits

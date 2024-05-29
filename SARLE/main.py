@@ -36,28 +36,35 @@ There are a few things that require user acion:
 
 """
 
-DATASET_PATH = r"Z:\geselecteerd\AA_Marijn_processed\CT_images"
-DATASET_NAMES = ['AMPH', 'ISAL', 'LUMC', 'MAXI', 'RADB', 'UMG1', 'UMG2', 'VUMC', 'ZUYD']
-SARLE_TRAIN_DATASET_FILENAME = "SARLE_train_dataset.xlsx"
-SARLE_TEST_DATASET_FILENAME = "SARLE_test_dataset.xlsx"
-SARLE_PREDICT_DATASET_FILENAME = "SARLE_predict_dataset.xlsx"
+DATASET_PATH = r"C:\Users\20192010\Downloads\sarle_Test"
+DATASET_NAMES = ['AMPH', 'ISAL']
+#DATASET_NAMES = ['AMPH', 'ISAL', 'LUMC', 'MAXI', 'RADB', 'UMG1', 'UMG2', 'VUMC', 'ZUYD']
+SARLE_TRAIN_DATASET_FILENAME = None        # Put None if you don't want to use this
+SARLE_TEST_DATASET_FILENAME = None         # Put None if you don't want to use this
+SARLE_PREDICT_DATASET_FILENAME = "SARLE_predict_dataset.xlsx"   # Put None if you don't want to use this
 SARLE_VARIANT = 'rules' # Either 'rules' or 'hybrid'
 
 if __name__=='__main__':
-    
-    #todo check if the trainig of hybrid still works
+
     # Define the datasets
-    #train_data = pd.read_excel(os.path.join(DATASET_PATH, SARLE_TRAIN_DATASET_FILENAME)) #labeled data to train the ML classfier used for SARLE-Hybrid
-    train_data = pd.DataFrame()
-
-    test_data = pd.read_excel(os.path.join(DATASET_PATH, SARLE_TEST_DATASET_FILENAME)) #labeled data to evaluate the label extraction performance 
-
-    #predict_data = pd.read_excel(os.path.join(DATASET_PATH, SARLE_PREDICT_DATASET_FILENAME)) #unlabeled inference data for which we want to extract labels automatically
-    predict_data = pd.DataFrame()
+    if SARLE_TRAIN_DATASET_FILENAME == None or SARLE_VARIANT == 'rules':
+        train_data = pd.DataFrame()
+    else:
+        train_data = pd.read_excel(os.path.join(DATASET_PATH, SARLE_TRAIN_DATASET_FILENAME)) 
+        
+    if SARLE_TEST_DATASET_FILENAME == None:
+        test_data = pd.DataFrame()
+    else:
+        test_data = pd.read_excel(os.path.join(DATASET_PATH, SARLE_TEST_DATASET_FILENAME))
+    
+    if SARLE_PREDICT_DATASET_FILENAME == None:
+        predict_data = pd.DataFrame()
+    else:
+        predict_data = pd.read_excel(os.path.join(DATASET_PATH, SARLE_PREDICT_DATASET_FILENAME))       
 
 
     # Run the main SARLE script
-    run_sarle.generate_labels(train_data, test_data, predict_data, sarle_variant=SARLE_VARIANT)
+    run_sarle.generate_labels(train_data, test_data, predict_data, sarle_variant=SARLE_VARIANT, use_other_abnormality=False, use_other_location=True)
     
     """ 
     The run_sarle script produces a single output file called all_labels that contains report and labels for the entire dataset.
@@ -69,5 +76,3 @@ if __name__=='__main__':
     for hospital in DATASET_NAMES:
         df = all_labels[all_labels['PseudoID'].str.contains(hospital)]
         df.to_excel(os.path.join(DATASET_PATH, hospital, "labels.xlsx"), index=False)
-        
-   

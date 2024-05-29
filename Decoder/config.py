@@ -12,26 +12,29 @@ torch.manual_seed(RANDOM_SEED)
 torch.cuda.manual_seed(RANDOM_SEED)
 torch.cuda.manual_seed_all(RANDOM_SEED)
 
-"""This is the config file. This file contains nearly all hyperparameters and settings that you might want to change.
+"""
+This is the config file. This file contains nearly all hyperparameters and settings that you might want to change.
 Hyperparameters/settings are recognisable by the capital letters.
 These Hyperparameters/settings are imported into nearly all other scripts in this project.
 These other scripts should never alter the values of the hyperparameters/settings.
 By importing the hyperparameters/settings from this file directly, 
-there is no need to constantly pass them as arguments to every function or class that needs them."""
+there is no need to constantly pass them as arguments to every function or class that needs them.
+"""
 
 
 # Model/Trainer settings
-STAGE = 'autoregressive'                       # Either fit, validate, or autoregressive
-ARCHITECTURE = 'bioclinical_bert'   # Either transformer_scratch, bioclinical_bert, or bio_gpt
-BATCH_SIZE = 20
+STAGE = 'fit'                           # Either fit, validate, or autoregressive
+ARCHITECTURE = 'transformer_scratch'    # Either transformer_scratch, bioclinical_bert, or bio_gpt
+BATCH_SIZE = 25
 GRAD_ACCUM = 1
 NUM_EPOCHS = 250
-LEARNING_RATE = 1e-5
-MAX_LENGTH = 20 
+LEARNING_RATE = 1e-4
+MAX_LENGTH = 45 
 ACCELERATOR = "gpu"
 DEVICES = 1 
 PRECISION = 32 
 NUM_WORKERS = 0 
+MAX_ENC_IMG_VALUE = 25                  # This value is important for correctly attending to the encoded images. Use SHOW_DATA_EXAMPLES to determine a good value. 
 
 
 # Plotting and printing settings
@@ -71,38 +74,17 @@ AUTOREGRESSIVE_DATASET = 'val'                                                  
 |   all_reports.docs
 |   SARLE_dataset.xlsx
 
-"""
+"""                                                       
 
-HOSPITAL_NAMES = ['AMPH', 'ISAL', 'LUMC', 'MAXI', 'RADB', 'UMG1', 'UMG2', 'VUMC', 'ZUYD']
-IMAGE_DIR = r"Z:\geselecteerd\AA_Marijn_processed\CT_images_black_and_mirrored"
-CLASS_NAMES = ["mirrored"]  # Names for the classes that are predicted
-NUM_CLASSES = len(CLASS_NAMES) 
-DATA_SPLIT = [364,50,50]                                                               # Train/val/test 
-IMAGE_FILE_NAME = 'ct_net_3d_convs_mirroredness_1_a.pt'
-REPRESENTATION = 'token'                                                                  # Either token or feature_map
-TASK = 'mirroredness'                                                                    # Either lobe_deletion or rotation
-
-# HOSPITAL_NAMES = ['AMPH_0_degree', 'AMPH_45_degree', 'AMPH_90_degree', 'AMPH_minus_45_degree', 'AMPH_minus_90_degree', 'ISAL_0_degree', 'ISAL_45_degree', 'ISAL_90_degree', 'ISAL_minus_45_degree', 'ISAL_minus_90_degree', 'LUMC_0_degree', 'LUMC_45_degree', 'LUMC_90_degree', 'LUMC_minus_45_degree', 'LUMC_minus_90_degree', 'MAXI_0_degree', 'MAXI_45_degree', 'MAXI_90_degree', 'MAXI_minus_45_degree', 'MAXI_minus_90_degree', 'RADB_0_degree', 'RADB_45_degree', 'RADB_90_degree', 'RADB_minus_45_degree', 'RADB_minus_90_degree', 'UMG1_0_degree', 'UMG1_45_degree', 'UMG1_90_degree', 'UMG1_minus_45_degree', 'UMG1_minus_90_degree', 'UMG2_0_degree', 'UMG2_45_degree', 'UMG2_90_degree', 'UMG2_minus_45_degree', 'UMG2_minus_90_degree', 'VUMC_0_degree', 'VUMC_45_degree', 'VUMC_90_degree', 'VUMC_minus_45_degree', 'VUMC_minus_90_degree', 'ZUYD_0_degree', 'ZUYD_45_degree', 'ZUYD_90_degree', 'ZUYD_minus_45_degree', 'ZUYD_minus_90_degree']
-# IMAGE_DIR = r"Z:\geselecteerd\AA_Marijn_processed\CT_images_rotation"
-# CLASS_NAMES = ['-90', '-45', '0', '45', '90']                           # Names for the classes that are predicted
-# NUM_CLASSES = len(CLASS_NAMES) 
-# DATA_SPLIT = [1820,250,250]                                             # Train/val/test 
-# IMAGE_FILE_NAME = 'ct_net_3d_convs_rotation_1_a.pt'
-# REPRESENTATION = 'token'                                                # Either token or feature_map
-# TASK = 'rotation'                                                       
-
-# HOSPITAL_NAMES = ['AMPH_left_lower', 'AMPH_left_upper', 'AMPH_right_lower', 'AMPH_right_middle', 'AMPH_right_upper', 'ISAL_left_lower', 'ISAL_left_upper', 'ISAL_right_lower', 'ISAL_right_middle', 'ISAL_right_upper', 'LUMC_left_lower', 'LUMC_left_upper', 'LUMC_right_lower', 'LUMC_right_middle', 'LUMC_right_upper', 'MAXI_left_lower', 'MAXI_left_upper', 'MAXI_right_lower', 'MAXI_right_middle', 'MAXI_right_upper', 'RADB_left_lower', 'RADB_left_upper', 'RADB_right_lower', 'RADB_right_middle', 'RADB_right_upper', 'UMG1_left_lower', 'UMG1_left_upper', 'UMG1_right_lower', 'UMG1_right_middle', 'UMG1_right_upper', 'UMG2_left_lower', 'UMG2_left_upper', 'UMG2_right_lower', 'UMG2_right_middle', 'UMG2_right_upper', 'VUMC_left_lower', 'VUMC_left_upper', 'VUMC_right_lower', 'VUMC_right_middle', 'VUMC_right_upper', 'ZUYD_left_lower', 'ZUYD_left_upper', 'ZUYD_right_lower', 'ZUYD_right_middle', 'ZUYD_right_upper']
-# IMAGE_DIR = r"Z:\geselecteerd\AA_Marijn_processed\CT_images_lobe_deletion"
-# CLASS_NAMES = ["left_lower", "left_upper", "right_lower", "right_middle", "right_upper"]  # Names for the classes that are predicted
-# NUM_CLASSES = len(CLASS_NAMES) 
-# DATA_SPLIT = [1820,250,250]                                                               # Train/val/test 
-# IMAGE_FILE_NAME = 'ct_net_3d_convs_lobe_occlusion_1_b.pt'
-# REPRESENTATION = 'token'                                                                  # Either token or feature_map
-# TASK = 'lobe_deletion'                                                                    # Either lobe_deletion or rotation
-
+HOSPITAL_NAMES = ['AMPH', 'AMPH_c1', 'AMPH_c2', 'AMPH_c3', 'AMPH_c4', 'ISAL', 'ISAL_c1', 'ISAL_c2', 'ISAL_c3', 'ISAL_c4', 'LUMC', 'LUMC_c1', 'LUMC_c2', 'LUMC_c3', 'LUMC_c4', 'MAXI', 'MAXI_c1', 'MAXI_c2', 'MAXI_c3', 'MAXI_c4', 'RADB', 'RADB_c1', 'RADB_c2', 'RADB_c3', 'RADB_c4', 'UMG1', 'UMG1_c1', 'UMG1_c2', 'UMG1_c3', 'UMG1_c4', 'UMG2', 'UMG2_c1', 'UMG2_c2', 'UMG2_c3', 'UMG2_c4', 'VUMC', 'VUMC_c1', 'VUMC_c2', 'VUMC_c3', 'VUMC_c4', 'ZUYD', 'ZUYD_c1', 'ZUYD_c2', 'ZUYD_c3', 'ZUYD_c4']
+IMAGE_DIR = r"Z:\geselecteerd\AA_Marijn_processed\CT_images_combined_surrogate"
+DATA_SPLIT = [1810,250,250]
+IMAGE_FILE_NAME = 'ct_net_3d_convs_combined_1_a.pt'
+REPRESENTATION = 'token'                                                                    # Either token or feature_map
+TASK = 'combined_surrogate'                                                                 # For naming the vocab dict file
 
 if REPRESENTATION == 'feature_map':
-    IMAGE_SIZE = [BATCH_SIZE, 512, 6, 6]                                                    # Size of the tensor in IMAGE_FILE_NAME
+    IMAGE_SIZE = [BATCH_SIZE, 130, 512, 13, 13]                                             # Size of the tensor in IMAGE_FILE_NAME
 if REPRESENTATION == 'token':
     IMAGE_SIZE = [BATCH_SIZE, 96]                                                           # Size of the tensor in IMAGE_FILE_NAME
 
@@ -120,11 +102,11 @@ if ARCHITECTURE == 'transformer_scratch':                                       
     TARGET_LENGTH = torch.tensor(MAX_LENGTH-1)                                              # The target length is the maximum length of the reports minus 1, because the reports contain the sos token at the start, and the predictions do not.
     
     # Tokenizer parameters
-    TOKENIZER = Tokenizer(oov_token="<OOV>")
+    TOKENIZER = Tokenizer(oov_token="<OOV>", filters='!"#$%&()*/:;<=>?@[\\]^_`{|}~\t\n')    # Filters are set to remove all punctuation DO NOT put [.] or [,] or [+] or [-] in there
     PAD_IDX = 0
-    SOS_IDX = 3
-    EOS_IDX = 4 
-    VOCAB_SIZE = 89 #89 for mirrored, 102 for rotation, 89 for lobe_deletion
+    SOS_IDX = 8
+    EOS_IDX = 9 
+    VOCAB_SIZE = 190
     assert os.path.exists(f'vocab_dict_scratch_{TASK}.pkl'), "Vocab dict file does not exist yet. Outcomment this assert statement and the 2 lines below, set mode to fit and all the plotting/printing to False. Run main.py again, during initialisation the vocab file will be saved. Then you will encounter an error again because the model was not initialized with vocab dict. So you have to run main.py again to load the model with the vocab dict file this time."
     with open(f'vocab_dict_scratch_{TASK}.pkl', 'rb') as f:
             VOCAB_DICT = pickle.load(f)

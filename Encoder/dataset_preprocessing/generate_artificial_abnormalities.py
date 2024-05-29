@@ -4,7 +4,7 @@ import math
 import numpy as np
 import pandas as pd
 from totalsegmentator.python_api import totalsegmentator # pip3 install git+https://github.com/wasserth/TotalSegmentator.git
-BACKGROUND_VALUE = -1000.0 # Float value that is used to fill the background and occluded area of the image. -1000 is the Hounsfield unit for air
+from config import BACKGROUND_VALUE
 
 """
 This script takes CT images and adds a random combination of artificial abnormalities. 
@@ -66,7 +66,7 @@ if __name__ == "__main__": # This is needed to prevent a .freeze() and threading
         resampler.SetOutputDirection(image.GetDirection())
         resampler.SetOutputOrigin([0, 0, 0])
         resampler.SetInterpolator(sitk.sitkLinear)
-        resampler.SetDefaultPixelValue(BACKGROUND_VALUE) 
+        resampler.SetDefaultPixelValue(float(BACKGROUND_VALUE)) 
         resampler.SetTransform(transform)
 
         # Perform the resampling operation

@@ -8,7 +8,6 @@ import os
 from config import *
 import SimpleITK as sitk
 from dataset_preprocessing.ct_vol_preprocessing import preprocess_ct_volume
-import einops
 from utils import show_getitem_samples
 
 

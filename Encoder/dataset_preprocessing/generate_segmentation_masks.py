@@ -3,7 +3,8 @@ import os
 import SimpleITK as sitk
 import torch
 
-"""This script allows you to segment anatomical structures in CT images using the TotalSegmentator models.
+"""
+This script allows you to segment anatomical structures in CT images using the TotalSegmentator models.
 The TotalSegmentator model requires a different version of numpy than all the other scripts/models.
 Therefore, you need to make a different venv for this script.
 You can define which structures you want to segment by changing the roi_subset parameter.

@@ -18,7 +18,8 @@ torch.cuda.manual_seed_all(RANDOM_SEED)
 
 
 class model(pl.LightningModule):
-    """ A model class for training and evaluating a PyTorch Lightning model.
+    """ 
+    A model class for training and evaluating a PyTorch Lightning model.
     
     This class defines the structure and behavior of the model used for training and evaluation. 
     It includes methods for configuring optimizers, defining the forward pass, calculating the loss function, and handling training and validation steps.
@@ -39,9 +40,6 @@ class model(pl.LightningModule):
     
     """
     
-    
-    
-    
     def __init__(self):
         
         super().__init__()
@@ -56,7 +54,6 @@ class model(pl.LightningModule):
             "batch_size": BATCH_SIZE,	
             "architecture": ARCHITECTURE,
             "dataset": HOSPITAL_NAMES,
-            "class_names": CLASS_NAMES,
             "image_dir": IMAGE_DIR,
             "max_length": MAX_LENGTH,
             "stage": STAGE,
@@ -73,7 +70,7 @@ class model(pl.LightningModule):
             self.model = biogpt_architecture()
             print("Using bio_gpt decoder architecture")        
         
-        #to store the output of the model steps during the epoch
+        # To store the output of the model steps during the epoch
         self.train_step_outputs = []
         self.validation_step_outputs = []
         self.test_step_outputs = []
@@ -88,19 +85,17 @@ class model(pl.LightningModule):
         # Reshape (flatten) the logits and labels to match the CrossEntropyLoss function
         labels = einops.rearrange(labels, 'batch seq_length -> (batch seq_length)').long()
         logits = einops.rearrange(logits, 'batch seq_length vocab_size -> (batch seq_length) vocab_size').float()
-        cel = nn.CrossEntropyLoss(ignore_index=PAD_IDX) # Ignore the padding when calculating the loss
+        cel = nn.CrossEntropyLoss(ignore_index=PAD_IDX)
         loss = cel(logits, labels)
         
         return loss
-
 
 
     def configure_optimizers(self):
         """ Configures the optimizer used for training."""
         optimizer = torch.optim.Adam(self.parameters(), lr=LEARNING_RATE) 
         return {"optimizer": optimizer, "monitor": "val_loss" }
-    
-    
+
     
     def forward(self, images, reports): 
         """Does the forward pass of the model."""
@@ -108,24 +103,21 @@ class model(pl.LightningModule):
         return logits
 
 
-
     def training_step(self, batch, batch_idx):
         """Defines the behavior of a training step."""
         
+        # Perform a forward pass, calculate the loss, and update the model weights (this happens automatically in PyTorch Lightning)
         images, reports = batch                     
-        
         logits = self.forward(images, reports)
-        
         assert logits.shape[1] == MAX_LENGTH-1, "MAX_LENGTH is originally defined based on the labels (reports) and it includes the SOS token. The model should NOT predict and SOS token so it should return MAXLENGTH-1 predicted tokens"      
-        
         loss = self.loss_function(logits, reports)
 
+        # Calculate the next word prediction accuracy
         accuracy = batch_accuracy(logits, reports)
-        
         print("\nTraining accuracy (batch average): {:.2f}".format(accuracy.item()))
 
+        # Store the loss and accuracy for logging, and calculating the epoch average        
         self.train_step_outputs.append( {'loss': loss, 'accuracy': accuracy} )
-        
         wandb.log({ 'train_loss_step': loss,
                     'train_accuracy_step': accuracy,})
                          
@@ -135,25 +127,22 @@ class model(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         """Defines the behavior of a validation step."""
         
+        # Perform a forward pass and calculate the loss 
         images, reports = batch                     
-        
         logits = self.forward(images, reports)  
-        
         assert logits.shape[1] == MAX_LENGTH-1, "MAX_LENGTH is originally defined based on the labels (reports) and it includes the SOS token. The model should NOT predict and SOS token so it should return MAXLENGTH-1 predicted tokens"      
-       
         loss = self.loss_function(logits, reports)
 
+        # Calculate the next word prediction accuracy
         accuracy = batch_accuracy(logits, reports)
-        
         print("\nValidation accuracy (batch average): {:.2f}".format(accuracy.item()))
 
+        # Store the loss and accuracy for logging, and calculating the epoch average 
         self.validation_step_outputs.append( {'loss': loss, 'accuracy': accuracy} )
-        
         wandb.log({ 'val_loss_step': loss,
                     'val_accuracy_step': accuracy, })
         
         return {'loss': loss}
-        
         
         
     def on_train_epoch_end(self):
@@ -168,8 +157,7 @@ class model(pl.LightningModule):
         # Clear the data for the next epoch
         self.train_step_outputs.clear()  
 
-        self.log('train_accuracy', epoch_accuracy) #todo i dont think this is used anymore
-        
+        # Log the epoch average loss and accuracy to Weights & Biases        
         wandb.log({
             'train_loss_epoch_average': epoch_loss,
             'train_accuracy_epoch_average': epoch_accuracy,
@@ -195,6 +183,7 @@ class model(pl.LightningModule):
         self.log('val_loss', epoch_loss) 
         self.log('val_accuracy', epoch_accuracy) 
 
+        # Log the epoch average loss and accuracy to Weights & Biases
         wandb.log({
             'val_loss_epoch_average': epoch_loss,
             'val_accuracy_epoch_average': epoch_accuracy,
@@ -203,13 +192,3 @@ class model(pl.LightningModule):
         print(f'\nValidation loss (average of last epoch): {epoch_loss:.2f}')
         print(f'\nValidation accuracy (average of last epoch): {epoch_accuracy:.2f}')
    
-
-
-
-
-
-
-
-
-
-

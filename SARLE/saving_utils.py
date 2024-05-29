@@ -5,16 +5,13 @@ import pandas as pd
 from main import DATASET_PATH
 from abnormality_vocabulary import ABNORMALITY_LIST
 
-#TODO remove all mentions of location
-
-def configure_results_dirs(sarle_variant, use_other_abnormality, use_other_location):
+def configure_results_dirs(sarle_variant):
     """Create and return the paths to "results" directories."""
     if not os.path.isdir('SARLE_results'):
         os.mkdir('SARLE_results')
     
     results_dir = os.path.join('SARLE_results',datetime.datetime.today().strftime('%Y-%m-%d')
-                               +'_'+sarle_variant+'_otherabnormalitys'+ f'{use_other_abnormality}' +'_otherlocations'+ f'{use_other_location}'
-                               )
+                               +'_'+sarle_variant+'_otherabnormalitys')
     if not os.path.isdir(results_dir):
         os.mkdir(results_dir)
 

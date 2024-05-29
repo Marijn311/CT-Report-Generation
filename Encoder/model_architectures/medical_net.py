@@ -40,7 +40,6 @@ class medical_net_architecture(pl.LightningModule):
                 
         #Pretrained weights
         MEDNET_WEIGHTS = r"C:\Users\mborghou\OneDrive - TU Eindhoven\AA_Vakken\AA_Active vakken\Afstuderen\Pretrained_Weights\MedicalNet\resnet_18_23dataset.pth"
-        #todo see if i can just use pretrained=true or something instead of this path
 
         # Load the pre-trained model
         resnet = resnet18(spatial_dims=3, n_input_channels=1, num_classes=NUM_CLASSES).to("cuda")
@@ -62,7 +61,6 @@ class medical_net_architecture(pl.LightningModule):
         self.feature_extractor = nn.Sequential(*(list(resnet.children())[:-2])) 
         
    
-    
     def forward(self, x):
         """Performs the forward pass of the Medical-Net architecture."""
         

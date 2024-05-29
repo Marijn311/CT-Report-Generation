@@ -1,6 +1,6 @@
 import os
 import numpy as np
-import evaluation
+from evaluation import calculate_eval_metrics
 
 try:
     import fasttext
@@ -26,7 +26,7 @@ class ClassifySentences(object):
         self.predict_data = predict_data
         
         # For the classifier, train and test data are required
-        assert not self.train_data.empty
+        assert not self.train_data.empty, 'Training data set needs to be defined when using sarle hybrid'
         assert not self.test_data.empty
         
         self.results_dir = results_dir
@@ -84,7 +84,12 @@ class ClassifySentences(object):
         data = self._extract_predictions(data)
         
         #Report performance
-        evaluation.report_sentence_level_eval(data, setname, 'Fasttext')
+        #evaluation.report_sentence_level_eval(data, setname, 'Fasttext') 
+        if setname != 'predict':
+            accuracy, auc, average_precision = calculate_eval_metrics(predicted_labels=data['PredLabel'].values.tolist(), predicted_probs=data['PredProb'].values.tolist(), true_labels=data['BinLabel'].values.tolist())
+            print('Accuracy:',accuracy)
+            print('AUC:',auc)
+            print('Average Precision:',average_precision)
         return data
         
     def _extract_predictions(self, data):
@@ -120,4 +125,3 @@ class ClassifySentences(object):
             os.remove(os.path.join(self.results_dir,'classifier.bin'))
             os.remove(os.path.join(self.results_dir,'fasttext_train_set.txt'))
             os.remove(os.path.join(self.results_dir,'fasttext_test_set.txt'))                  
-    

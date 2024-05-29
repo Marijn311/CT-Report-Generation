@@ -13,7 +13,8 @@ import matplotlib.pyplot as plt
 import pickle
 
 class dataset(torch.utils.data.Dataset):
-    """A dataset class for encoded images and report pairs.
+    """
+    A dataset class for encoded images and report pairs.
 
     This class represents a dataset that contains encoded images and their corresponding report pairs.
     It inherits from the `torch.utils.data.Dataset` class.
@@ -44,7 +45,7 @@ class dataset(torch.utils.data.Dataset):
         report_pseudo_ids = []
         image_pseudo_ids = []
         report_corpus = []
-        report_corpus_cleaned = []
+        reports_corpus_processed = []
 
         #Load the reports. Count the number of reports and the number of images, make sure this count is the same.
         for hospital_name in HOSPITAL_NAMES:
@@ -71,21 +72,14 @@ class dataset(torch.utils.data.Dataset):
 
 
 
-        # Preprocess the reports #fix is it true that the + and - sign are removed from thr scratch rotation reports? so -45 becomes 45
+        # Preprocess the reports 
         for report in report_corpus:
-            report_cleaned_sentences = []               # Only used as an intermediate step during the deletion of short sentences
-            report = re.sub(r"[\[\]]", "", report)      # Delete the brackets of the list
-            report_sentences = report.split("'")        # Split the strings on ' and return a list of sentences
-            for sentence in report_sentences:           # Delete all sentences that are shorter than 5 characters to remove empty sentences and /n
-                if len(sentence) > 5:
-                    report_cleaned_sentences.append(sentence) 
-            report_cleaned_sentences = [sentence.strip() for sentence in report_cleaned_sentences]          # Strip ALL trailing whitespaces
-            report_cleaned_sentences = [' ' + sentence + ' ' for sentence in report_cleaned_sentences]      # Add a SINGLE trailing whitespace
-            report_cleaned = '.'.join(report_cleaned_sentences)                                             # Join the list of sentences to a single string separating the sentences with a period with whitespaces
+            report = report.strip()                                                # Strip ALL trailing whitespaces
+            report = re.sub(r"([.,!?])", r" \1 ", report)                          # Add a whitespace before and after each punctuation mark
             if ARCHITECTURE == 'transformer_scratch':
-                report_cleaned = '<SOS>' + report_cleaned + '<EOS>'             # Add <SOS> and <EOS> tokens to each report because the tokenizer that is used in the scratch-model doesnt do this automatically when tokenizing th reports
-            report_corpus_cleaned.append(report_cleaned)                        # Add the cleaned report to the cleaned report corpus
-            self.report_corpus = report_corpus_cleaned                          # Overwrite the old report corpus with the cleaned report corpus
+                report = '<SOS> ' + report + ' <EOS>'                              # Add <SOS> and <EOS> tokens to each report because the tokenizer that is used in the scratch-model doesnt do this automatically when tokenizing th reports
+            reports_corpus_processed.append(report)                                # Add the cleaned report to the cleaned report corpus
+            self.report_corpus = reports_corpus_processed                          # Overwrite the old report corpus with the processed report corpus
         print(f"Report corpus contains {len(self.report_corpus)} reports")
         
         
@@ -188,6 +182,7 @@ class dataset(torch.utils.data.Dataset):
             print(f"\nEncoded image array is: {image_array}")
             print(f"\nMin value of the image: {torch.min(image_array)}")
             print(f"\nMax value of the image: {torch.max(image_array)}")
+            print(f"\nThis max value helps to determine the MAX_ENC_IMG_VALUE in the config file")
 
         return image_array, tokenized_report
 

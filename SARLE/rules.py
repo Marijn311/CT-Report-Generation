@@ -34,4 +34,3 @@ MAIN_WORD_FUNCTIONS = {
         'zonder pathologische':{'function':fxn.delete},
         'zonder aanwijzingen':{'function':fxn.delete},
         }
-

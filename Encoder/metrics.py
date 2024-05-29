@@ -106,6 +106,9 @@ def get_accuracy(logits, labels, epoch_type, optimal_thresholds=None):
     labels = torch.cat(labels, dim=0)
     logits = torch.cat(logits, dim=0)
     
+    # Convert the logits to probabilities. Probalities do NOT sum to 1 because the labels are NOT mutually exclusive.
+    probs = torch.sigmoid(logits)
+    
     # Convert torch tensor to numpy array
     labels = labels.detach().clone().cpu().numpy() 
     probs = probs.detach().clone().cpu().numpy()

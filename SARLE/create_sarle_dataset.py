@@ -18,8 +18,8 @@ There are a few things that require user acion:
 4. Make sure the formatting in the docx file is correct. A reports starts with the pseudoID, there has to be 1 "enter" between the pseudoID and the report text. After the report text there have to be 2 "enters" before the next pseudoID.
 """
 
-DATASET_PATH = r"C:\Users\20192010\Downloads\local_sarle\testing_ct_images"
-SET_TYPE = 'test' # Either: 'train', 'test', 'predict'
+DATASET_PATH = r"C:\Users\20192010\Downloads\sarle_Test"
+SET_TYPE = 'predict' # Either: 'train', 'test', 'predict'
 
 # To store the pseudo_ids and reports 
 pseudo_ids = []
@@ -38,7 +38,7 @@ for root, hospital_folders, _ in os.walk(DATASET_PATH):
         for i in range(2, len(reports_text), 3):
             assert reports_text[i] == "", f"Paragraph {i} is not empty. It contains: {reports_text[i]}"
         
-        #save the pseudo_ids and reports to the lists
+        # Save the pseudo_ids and reports to the lists
         # Paragraphs 0, 3, 6, 9, 12 etc contain the pseudo_ids
         # Paragraphs 1, 4, 7, 10, 13 etc contain the report
         for i in range(0, len(reports_text), 3):
@@ -53,7 +53,6 @@ for root, hospital_folders, _ in os.walk(DATASET_PATH):
 df = pd.DataFrame(list(zip(pseudo_ids, reports)), columns=["PseudoID", "Report"])
 all_reports_path = os.path.join(DATASET_PATH, "all_reports.xlsx")
 df.to_excel(all_reports_path, index=False)
-
 
 # Load the excel file with the data again
 raw_df = pd.read_excel(all_reports_path, sheet_name='Sheet1')
@@ -99,4 +98,9 @@ for index, row in raw_df.iterrows():
 print(f'We have {len(all_report_sentences)} sentences for in the SARLE dataset.')
 processed_df = pd.DataFrame(all_report_sentences, columns = ['Sentence', 'Filename', 'Section'])
 processed_df.to_excel(os.path.join(DATASET_PATH, f'SARLE_{SET_TYPE}_dataset.xlsx'), index=False, header=True)
-print('DONE! Saved the SARLE dataset to a excel file.')
+print(f'Saved the SARLE dataset to a excel file in {DATASET_PATH}.')
+
+print('BEWARE! if you selected a SET_TYPE of "train" or "test" you need to manually label the dataset.')
+print('You can do this by opening the excel file and adding a column named "Label" which should contain a "s" or "h" for a sick or healthy sentence.')
+print('You also need to add a column named "BinLabel" which should contain a 1 for a sick or 0 for a healthy sentence. This is redundant but required by the SARLE tool.')
+print('For the "test" dataset you also need to add a column for every abnormality in abnormality_vocabulary.py. The column should have the exact name of the abnormality and contain a 1 if the abnormality is present in the sentence and a 0 if it is not present.')

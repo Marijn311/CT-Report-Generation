@@ -20,7 +20,6 @@ Provided functions include:
     -rescaling masked images to better fill available space
 
 Most of the functions are taken from: https://github.com/rachellea/ct-net-models/blob/master/load_dataset/utils.py
-
 """
 
 ###########################################################################################################

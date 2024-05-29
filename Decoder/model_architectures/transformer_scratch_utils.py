@@ -7,7 +7,8 @@ import einops
 """This file contains the building blocks (in the form of multiple classes) for the transformer model from scratch."""
 
 class SelfAttention(pl.LightningModule):
-    """Self-Attention module that performs multi-head attention mechanism.
+    """
+    Self-Attention module that performs multi-head attention mechanism.
 
     Attributes:
         head_dim (int): The dimension of the embedding vector that is processed per head.
@@ -76,7 +77,8 @@ class SelfAttention(pl.LightningModule):
     
 
 class TransformerBlock(pl.LightningModule):
-    """This class represents a Transformer block on the encoder side.
+    """
+    This class represents a Transformer block on the encoder side.
     It implements the "nx" block described in Figure 1 of the "Attention is All You Need" paper.
 
     Attributes:
@@ -115,7 +117,8 @@ class TransformerBlock(pl.LightningModule):
         return out
     
 class Encoder(pl.LightningModule):
-    """The Encoder class is responsible for reshaping the encoded images into the desired shape of (batch_size, seq_len, hidden_size).
+    """
+    The Encoder class is responsible for reshaping the encoded images into the desired shape of (batch_size, seq_len, hidden_size).
     It supports two different representations: 'feature_map' and 'token'.
 
     Attributes:
@@ -141,15 +144,15 @@ class Encoder(pl.LightningModule):
         """Performs the forward pass of the encoder."""
         
         if REPRESENTATION == 'feature_map':
+            images = einops.reduce(images, 'b chunks channels f1 f2 -> b chunks f1 f2', 'mean')        # Average the channels of the feature maps 
             images = einops.rearrange(images, 'b c f1 f2 -> b c (f1 f2)')                               # Flatten the features maps
+            images = einops.rearrange(images, 'b c fv -> (b c) fv')                                     # Combine the batch and chunks dimensions, to make the linear layer work
             images = self.reshape_to_hidden_size(images)                                                # Reshape the flatted featuremap to HIDDEN_SIZE
-            #todo is a normalisation or activation function needed after this linear layer to make sure the image embeddings are in a certain range?
+            images = einops.rearrange(images, '(b c) fv -> b c fv', b=BATCH_SIZE)                       # Uncombine the batch and chunks dimensions
             
-        if REPRESENTATION == 'token':
-            min_value = 0
-            max_value = 40                                                                              # This may change depending on the encoder model and dataset that was used. Set SHOW_DATA_EXAMPLES to True in config.py to see the min and max values of the encoded images. Choose a range that covers most of the values.  
-            images = torch.clamp(images, min=min_value, max=max_value)                                  # Clamp the encoded images (which are logits values from a ReLu layer) to a fixed range
-            scaled_values = (((images - min_value) / (max_value - min_value)) * (NR_IMG_TOKENS-1))      # Scale the clamped values to the range [0, NR_IMG_TOKENS-1]
+        if REPRESENTATION == 'token':                                                                   # This may change depending on the encoder model and dataset that was used. Set SHOW_DATA_EXAMPLES to True in config.py to see the min and max values of the encoded images. Choose a range that covers most of the values.  
+            images = torch.clamp(images, min=0, max=MAX_ENC_IMG_VALUE)                                  # Clamp the encoded images (which are logits values from a ReLu layer) to a fixed range
+            scaled_values = (((images) / (MAX_ENC_IMG_VALUE)) * (NR_IMG_TOKENS-1))                      # Scale the clamped values to the range [0, NR_IMG_TOKENS-1]
             integer_values = torch.round(scaled_values).to(torch.int)                                   # Round the scaled values to integers. The "integer values" are effectively the image tokens.
             images = self.img_embedding(integer_values)                                                 # Embed the integer values to the hidden size of the model
 
@@ -158,7 +161,8 @@ class Encoder(pl.LightningModule):
 
 
 class DecoderBlock(pl.LightningModule):
-    """This class represents a single transformer "nx" block on the decoder side of the transformer model.
+    """
+    This class represents a single transformer "nx" block on the decoder side of the transformer model.
     
     The decoder block consists of two main components: self-attention and cross-attention.
     It takes an input tensor 'x' (the embedded reports) and performs self-attention on it using the `SelfAttention` module.
@@ -183,7 +187,8 @@ class DecoderBlock(pl.LightningModule):
         self.dropout = nn.Dropout(DROPOUT).to('cuda')
 
     def forward(self, x, value, key, report_mask):
-        """Forward pass of the decoder block.
+        """
+        Forward pass of the decoder block.
         
         Args:
             x (torch.Tensor): The input tensor (ground truth reports) to the decoder block.
@@ -203,7 +208,8 @@ class DecoderBlock(pl.LightningModule):
         return out
     
 class Decoder(pl.LightningModule):
-    """This is the entire decoder which uses the decoder block and does the initial embedding of the target reports
+    """
+    This is the entire decoder which uses the decoder block and does the initial embedding of the target reports
     and the final linear layer to get the logits for the predicted words.
 
     Attributes:

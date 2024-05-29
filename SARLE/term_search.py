@@ -4,7 +4,7 @@ import pickle
 import pandas as pd
 import numpy as np
 from evaluation import term_search_performance
-import abnormality_vocabulary
+from abnormality_vocabulary import return_abnormality_terms
 
 """Thisscript performs the term search on the sentences that were labeled as abnormal in phase 1.
 We save the extracted abnormalities and locations in a matrix per radio report."""
@@ -41,8 +41,6 @@ class RadLabel(object):
         self.sarle_variant = sarle_variant
         self.use_other_abnormality = use_other_abnormality
         self.use_other_location = use_other_location
-        self.vocabmodule = abnormality_vocabulary
-
 
         assert setname in ['train','test','predict']
         self.setname = setname
@@ -178,8 +176,10 @@ class RadLabel(object):
         #now self.outbin should contain a dataframe for every report. Each dataframe has the abnormality as rows and the location as columns.
     
     def initialize_vocabulary_dicts(self):
-        #Load dictionaries from self.vocabmodule.py
-        self.mega_loc_dict, self.mega_abnormality_dict = self.vocabmodule.return_abnormality_terms()
+        #Load dictionaries 
+        self.mega_loc_dict = dict()
+        self.mega_abnormality_dict = return_abnormality_terms()
+
 
     def return_temp_for_location_search(self, sentence):
         """Return a dataframe called <temp> which reports the results of
@@ -354,7 +354,6 @@ def combine_imgtrain_files(term_search_dir):
     train_abnormality_out.to_csv(os.path.join(term_search_dir, 'imgtrain_abnormalityBinaryLabels.csv'))
 
 
-    #todo for now i am not sure if i will be using this missingness and sanity check
     #Missingness
     train_missing = (pd.concat([pd.read_csv(os.path.join(term_search_dir, 'imgtrain_notetrain_Missingness.csv'),
                                        header = 0, index_col = 0),

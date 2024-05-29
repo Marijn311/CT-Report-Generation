@@ -41,9 +41,7 @@ for root, hospital_folders, _ in os.walk(DATASET_PATH):
                     mask = sitk.ReadImage(mask_path)
                     mask_data = sitk.GetArrayFromImage(mask)
                     
-                    # Apply the mask: where the mask is 0 we want to set the pixel value of the image to -1000. 
-                    # -1000 is the value for air / blackness in HoundsField Units (HU). 
-                    # -1000 is also the clipping value that is set in the preprocessing of the encoder.
+                    # Apply the mask
                     masked_img_data = np.where(mask_data == 0, BACKGROUND_VALUE, img_data)
                     
                     # Save the masked image

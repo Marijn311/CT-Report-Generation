@@ -5,7 +5,8 @@ from transformers import BioGptForCausalLM, BioGptConfig
 from torch import nn
 
 class biogpt_architecture(pl.LightningModule):
-    """This class represents a GPT model that has been pretrained on biomedical PubMed data.
+    """
+    This class represents a GPT model that has been pretrained on biomedical PubMed data.
     The model uses no cross attention to attend to the encoded images. 
     Instead, the encoded images are fed as the first part of the reference report which the model will try to predict the next word for.
 
@@ -34,20 +35,19 @@ class biogpt_architecture(pl.LightningModule):
             self.reshape_channels_to_nr_img_tokens = nn.Linear(IMAGE_SIZE[1], NR_IMG_TOKENS).to('cuda')    
             self.reshape_to_hidden_size = nn.Linear(IMAGE_SIZE[-1]*IMAGE_SIZE[-2], HIDDEN_SIZE).to('cuda')
         
-    
        
     def forward(self, images, reports):
 
         # Process the encoded images to the correct dimensions
         if REPRESENTATION == 'feature_map':
             
-            #fix This model takes token ids as input instead of embedding vectors.
-            #the whole benefit of using encoded images in the feature map representation is that they are more similar in shape to embedding vectors.
-            #So if the feature map representation is downscaled to NR_IMAGE_TOKENS here, than we loss all this benefit.
-            #Hence, using the feature map representation is only possible when the model also accepts embeddings as input.
-            #However, I AM NOT SURE IF THAT IS POSSIBLE BECAUSE THE IMAGES WILL BE CONCATENATED WITH THE REPORT TOKENS AND THE REPORT TOKENS ARE EMBEDDED only IN THE MODEL, USING PRETRAINED embedding layers.
-            #So i would have to remove the embedding layer from the pretrained model and use this layer to embed the report tokens myself everytime before they go to the model
-        
+            #todo implement this
+            # The benefit of using the feature map representation is that this shape is more similar to the shape of the embedding vectors.
+            # However, the model expects tokens instead of feature maps. 
+            # Hence, to make this model compatible with the feature map representation, the embedding layer must be removed from the pretrained model.
+            # Preferably, this pretrained embedding layer should be used to then embed the report tokens before they are concatenated with the feature maps representation of the images.
+            
+            assert False, "Feature map representation is not yet implemented for the BioGPT model. See the todo above"
             images = einops.rearrange(images, 'b c f1 f2 -> b c (f1 f2)')       # Flatten the features maps
             images = einops.rearrange(images, 'b c f -> (b f) c')               # Isolate the channel dimension
             images = self.reshape_channels_to_nr_img_tokens(images)             # Use a linear layer to reshape the channel dimension to NR_IMAGE_TOKENS
@@ -55,11 +55,9 @@ class biogpt_architecture(pl.LightningModule):
             images = self.reshape_to_hidden_size(images)                        # Reshape the flatted featuremaps to HIDDEN_SIZE
         
         if REPRESENTATION == 'token':
-            min_value = 0
-            max_value = 40                                                                              # This may change depending on the encoder model and dataset that was used. Set SHOW_DATA_EXAMPLES to True in config.py to see the min and max values of the encoded images. Choose a range that covers most of the values.  
-            images = torch.clamp(images, min=min_value, max=max_value)                                  # Clamp the encoded images (which are logits values from a ReLu layer) to a fixed range
-            scaled_values = (((images - min_value) / (max_value - min_value)) * (NR_IMG_TOKENS-1))      # Scale the clamped values to the range [0, NR_IMG_TOKENS-1]
-            integer_values = torch.round(scaled_values).to(torch.int)                                   # Round the scaled values to integers. The "integer values" are effectively the image tokens.
+            images = torch.clamp(images, min=0, max=MAX_ENC_IMG_VALUE)                                  # Clamp the encoded images (which are logits values from a ReLu layer) to a fixed range
+            scaled_values = (((images) / (MAX_ENC_IMG_VALUE)) * (NR_IMG_TOKENS-1))                      # Scale the clamped values to the range [0, NR_IMG_TOKENS-1]
+            integer_values = torch.round(scaled_values).to(torch.int)                                   # Round the scaled values to integers. The "integer values" are effectively the image tokens.                                 
             image_token_ids = integer_values + 42384                                                    # Add 42434 (original vocab length) to all the integer values to make sure the image tokens are added at the end of the vocab
     
 

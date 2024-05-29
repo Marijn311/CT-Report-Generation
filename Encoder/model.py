@@ -117,15 +117,14 @@ class model(pl.LightningModule):
     
     def training_step(self, batch, batch_idx):
         """Perform a training step for the model."""
-    
-        images, labels = batch           
-           
-        logits = self.forward(images)
 
+        # Perform the forward pass, calculate the loss, and update the model weights (Pytorch Lightning does this automatically)
+        images, labels = batch           
+        logits = self.forward(images)
         loss = self.loss_function(logits, labels)
         
+        # Save the loss, labels, and logits for later use in the epoch end functions
         self.train_step_outputs.append( {'loss': loss, 'labels': labels, 'logits': logits} ) 
-        
         wandb.log({'training_loss_step': loss})
         
         # Print the probabilities and the ground truth labels. Useful for monitoring model behavior.
@@ -143,15 +142,14 @@ class model(pl.LightningModule):
     
     def validation_step(self, batch, batch_idx):
         """Perform a validation step for the model."""
-        
-        images, labels = batch           
-           
-        logits = self.forward(images)
 
+        # Perform the forward pass and calculate the loss  
+        images, labels = batch           
+        logits = self.forward(images)
         loss = self.loss_function(logits, labels)
       
+        # Save the loss, labels, and logits for later use in the epoch end functions
         self.validation_step_outputs.append( {'loss': loss, 'labels': labels, 'logits': logits} )
-        
         wandb.log({'validation_loss_step': loss})
                
         # Print the probabilities and the ground truth labels. Useful for monitoring model behavior.
@@ -171,12 +169,12 @@ class model(pl.LightningModule):
     def test_step(self, batch, batch_idx):
         """Perform a test step for the model."""
 
-        images, labels = batch           
-                
+        # Perform the forward pass and calculate the loss
+        images, labels = batch             
         logits = self.forward(images)
-
         loss = self.loss_function(logits, labels)      
         
+        # Save the loss, labels, and logits for later use in the epoch end functions
         self.test_step_outputs.append( {'loss': loss, 'labels': labels, 'logits': logits} )
         
         # Print the probabilities and the ground truth labels. Useful for monitoring model behavior.
