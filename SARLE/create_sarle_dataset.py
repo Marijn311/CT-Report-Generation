@@ -28,7 +28,7 @@ reports = []
 # Loop over all the hospital datasets 
 for root, hospital_folders, _ in os.walk(DATASET_PATH):
     for hospital_folder in hospital_folders: 
-        hospital_reports_doc_path = os.path.join(root, hospital_folder, 'verslagen.docx') 
+        hospital_reports_doc_path = os.path.join(root, hospital_folder, 'reports.docx') 
         
         # Open the docx file and read the reports
         reports_doc = docx.Document(hospital_reports_doc_path)

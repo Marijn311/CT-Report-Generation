@@ -109,7 +109,7 @@ def save_results(dataset, sarle_variant, term_search_dir):
     phase2_results = pd.DataFrame(phase2_results, columns=['PseudoID', 'abnormal_parts', 'abnormality_x_location'], index=None)
     phase2_results.to_excel(os.path.join(term_search_dir,'Phase2_results.xlsx'))
     
-    all_labels = pd.DataFrame(all_labels, columns=['PseudoID', 'Verslag', 'MH_diseases'], index=None)
+    all_labels = pd.DataFrame(all_labels, columns=['PseudoID', 'Report', 'MH_diseases'], index=None)
     all_labels.to_excel(os.path.join(DATASET_PATH,'all_labels.xlsx'), index=False)
 
 

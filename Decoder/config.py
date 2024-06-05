@@ -25,7 +25,7 @@ there is no need to constantly pass them as arguments to every function or class
 # Model/Trainer settings
 STAGE = 'fit'                           # Either fit, validate, or autoregressive
 ARCHITECTURE = 'transformer_scratch'    # Either transformer_scratch, bioclinical_bert, or bio_gpt
-BATCH_SIZE = 25
+BATCH_SIZE = 1
 GRAD_ACCUM = 1
 NUM_EPOCHS = 250
 LEARNING_RATE = 1e-4
