@@ -90,7 +90,8 @@ def generate_labels(train_data_raw, test_data_raw, predict_data_raw,
     #Step 3: Save the results (mined tags) to files ---------------------------------------------------------------------
     ######################################################################################################################
     print("\nStarting Phase 3: Saving results to file")
-    save_results(dataset=predict_data, sarle_variant=sarle_variant, term_search_dir=term_search_dir)
+    if predict_data.shape[0] > 0: # For now the results are only saved if three is a predict dataset
+        save_results(dataset=predict_data, sarle_variant=sarle_variant, term_search_dir=term_search_dir)
     print("Results succesfully saved to file")
     
 

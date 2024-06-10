@@ -76,10 +76,6 @@ class convs_3d_classifier(pl.LightningModule):
             nn.Dropout(0.5),
             nn.Linear(96, NUM_CLASSES)).to("cuda")
         
-        # Define the encoded image extractor. This is used to save the encoded images (states of the model before the final layer) to a .pt file.
-        # This has to be defined in the __init__ function else it will not be initialized with the trained weights.
-        self.encoded_image_extractor = nn.Sequential(*list(self.fc_layers.children())[:-2]).to("cuda")
-   
     def forward(self, x):
         """Perform the forward pass of the model."""
 

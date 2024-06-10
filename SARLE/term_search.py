@@ -232,8 +232,6 @@ class RadLabel(object):
         elif self.sarle_variant == 'rules':
             sets_use_sentence_level_grtruth = [] #no ground truth available 
             sets_use_pred_sentence_labels = ['train','test','predict']
-        
-
 
         if self.setname in sets_use_sentence_level_grtruth:
             #BinLabel is 1 or 0 based off of Label which is 's' or 'h'
@@ -255,49 +253,6 @@ class RadLabel(object):
         self.abnormality_out.to_csv(os.path.join(self.results_dir, self.setname+'_abnormalityBinaryLabels.csv'))
         self.data.to_csv(os.path.join(self.results_dir, self.setname+'_Merged.csv'))
         
-    
-    ########################################################################################### 
-    # FUNCTION TO EVALUATE THE MODEL PERFORMANCE#----------------------------------------------
-    ###########################################################################################
-    def report_test_set_mistakes(self):
-        """Report all note-level mistakes of all methods and save to a CSV"""
-        summary_df = pd.DataFrame(np.empty((5,4),dtype='str'),
-                                  columns=['Filename','sarle_Healthy_Sentences',
-                                    'sarle_Sick_Sentences','sarle_Mistakes'])
-        #Fill in the summary_df
-        idx=0
-        for fname in self.uniq_set_files:
-            summary_df.at[idx,'Filename']=fname
-            #Get the full text, which is contained in self.merged
-            summary_df.at[idx,'sarle_Healthy_Sentences'] = self.stringify(self.healthydf,fname)
-            #Get the sick sentences, which is contained in self.sickdf
-            summary_df.at[idx,'sarle_Sick_Sentences'] = self.stringify(self.sickdf,fname)
-            #Get the mistakes
-            summary_df.at[idx,'sarle_Mistakes'] = self.mistakes_as_string('sarle',fname,self.results_dir)
-            idx+=1
-        summary_df.to_csv(os.path.join(self.results_dir,'Test_Set_Mistakes_All_Methods.csv'))
-    
-    # Helper functions for report_test_set_mistakes() #----------------------------
-    def stringify(self, df,filename):
-        """Collapse all the entries of <df> corresponding to <filename>
-        into a single string"""
-        return '. '.join(((df[df['Filename']==filename])['Sentence']).values.tolist())
-    
-    def mistakes_as_string(self, method_name,filename,results_dir):
-        """Format the model's mistakes on report specified by
-        <filename> as a string, e.g.
-        'pneumonia(true0,pred1),cardiomegaly(true1,pred0)'
-        All of the dfs that this function uses have labels as columns and
-        filenames as the index."""
-        true = self.true_set_labels
-        pred = self.abnormality_out_ordered
-        final_string = ''
-        for label in true.columns.values:
-            true_label = int(true.at[filename,label])
-            pred_label = int(pred.at[filename,label])
-            if true_label!=pred_label:
-                final_string+=label+'(true'+str(true_label)+',pred'+str(pred_label)+'),'
-        return final_string
     
     ###########################################################################
     # Static Methods #---------------------------------------------------------
@@ -321,51 +276,6 @@ class RadLabel(object):
         if 'Exclude' in termdict[keyterm].keys():
             for banned_term in termdict[keyterm]['Exclude']:
                 if banned_term in sentence:
-                    label = 0 #cannot write return 0 because that means the function doesn't return any value
+                    label = 0 # Cannot write return 0 because that means the function doesn't return any value
         return label
     
-   
-#################################################################################
-# Create imgtrain Overall Output Files #-----------------------------------------
-#################################################################################
-def combine_imgtrain_files(term_search_dir):
-    """Combine imgtrain_notetrain, imgtrain_notetest, and imgtrain_extra output
-    files.
-    This function is not for initial data loading. This function is called
-    in certain circumstances after SARLE has totally finished running
-    in order to aggregate certain output files."""
-    #Aggregate all training labels (location x abnormality) and save
-    imgtrain_notetrain = pickle.load(open(os.path.join(term_search_dir, 'imgtrain_notetrain_BinaryLabels.pkl'), 'rb'))
-    imgtrain_notetest = pickle.load(open(os.path.join(term_search_dir, 'imgtrain_notetest_BinaryLabels.pkl'), 'rb'))
-    imgtrain_extra = pickle.load(open(os.path.join(term_search_dir, 'imgtrain_extra_BinaryLabels.pkl'), 'rb'))
-    out_bin = {}
-    out_bin.update(imgtrain_notetrain)
-    out_bin.update(imgtrain_notetest)
-    out_bin.update(imgtrain_extra)
-    pickle.dump(out_bin, open(os.path.join(term_search_dir, 'imgtrain_BinaryLabels.pkl'),'wb'))
-    
-    #Aggregate abnormality_out (abnormality binary labels) and save
-    train_abnormality_out = (pd.concat([pd.read_csv(os.path.join(term_search_dir, 'imgtrain_notetrain_abnormalityBinaryLabels.csv'),
-                                       header = 0, index_col = 0),
-                           pd.read_csv(os.path.join(term_search_dir, 'imgtrain_notetest_abnormalityBinaryLabels.csv'),
-                                       header = 0, index_col = 0),
-                           pd.read_csv(os.path.join(term_search_dir, 'imgtrain_extra_abnormalityBinaryLabels.csv'),
-                                       header = 0, index_col = 0)],axis=0))
-    train_abnormality_out.to_csv(os.path.join(term_search_dir, 'imgtrain_abnormalityBinaryLabels.csv'))
-
-
-    #Missingness
-    train_missing = (pd.concat([pd.read_csv(os.path.join(term_search_dir, 'imgtrain_notetrain_Missingness.csv'),
-                                       header = 0, index_col = 0),
-                           pd.read_csv(os.path.join(term_search_dir, 'imgtrain_notetest_Missingness.csv'),
-                                       header = 0, index_col = 0),
-                           pd.read_csv(os.path.join(term_search_dir, 'imgtrain_extra_Missingness.csv'),
-                                       header = 0, index_col = 0)],axis=0))
-    train_missing.to_csv(os.path.join(term_search_dir, 'imgtrain_Missingness.csv'))
-    
-    #Sanity checks
-    #columns ['MRN', 'Accession', 'Set_Assigned', 'Set_Should_Be','Subset_Assigned']
-    all_ids, available_accs = load_all_ids_and_accs()
-    train_ids = all_ids[all_ids['Set_Assigned'].isin(['imgtrain_extra','imgtrain_notetrain','imgtrain_notetest'])]['Accession'].values.tolist()
-    train_ids = [x for x in train_ids if x in available_accs]
-    assert set(train_ids)==set(list(out_bin.keys()))

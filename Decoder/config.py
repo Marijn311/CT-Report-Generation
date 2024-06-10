@@ -31,7 +31,6 @@ NUM_EPOCHS = 250
 LEARNING_RATE = 1e-4
 MAX_LENGTH = 45 
 ACCELERATOR = "gpu"
-DEVICES = 1 
 PRECISION = 32 
 NUM_WORKERS = 0 
 MAX_ENC_IMG_VALUE = 25                  # This value is important for correctly attending to the encoded images. Use SHOW_DATA_EXAMPLES to determine a good value. 

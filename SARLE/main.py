@@ -40,8 +40,8 @@ DATASET_PATH = r"C:\Users\20192010\Downloads\sarle_Test"
 DATASET_NAMES = ['AMPH', 'ISAL']
 #DATASET_NAMES = ['AMPH', 'ISAL', 'LUMC', 'MAXI', 'RADB', 'UMG1', 'UMG2', 'VUMC', 'ZUYD']
 SARLE_TRAIN_DATASET_FILENAME = None        # Put None if you don't want to use this
-SARLE_TEST_DATASET_FILENAME = None         # Put None if you don't want to use this
-SARLE_PREDICT_DATASET_FILENAME = "SARLE_predict_dataset.xlsx"   # Put None if you don't want to use this
+SARLE_TEST_DATASET_FILENAME = "SARLE_test_dataset.xlsx"         # Put None if you don't want to use this
+SARLE_PREDICT_DATASET_FILENAME = None   # Put None if you don't want to use this
 SARLE_VARIANT = 'rules' # Either 'rules' or 'hybrid'
 
 if __name__=='__main__':
