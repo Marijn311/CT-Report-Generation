@@ -2,7 +2,8 @@ import pandas as pd
 import run_sarle
 import os
 
-"""This is the main script to run SARLE-tool.
+"""
+This is the main script to run SARLE-tool.
 This script is an adaption of https://github.com/rachellea/sarle-labeler.
 SARLE stand for Senternce Analysis for Radiology Label Extraction.
 It is a tool to mine classification labels from radiology reports. 

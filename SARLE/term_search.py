@@ -6,8 +6,10 @@ import numpy as np
 from evaluation import term_search_performance
 from abnormality_vocabulary import return_abnormality_terms
 
-"""Thisscript performs the term search on the sentences that were labeled as abnormal in phase 1.
-We save the extracted abnormalities and locations in a matrix per radio report."""
+"""
+This script performs the term search on the sentences that were labeled as abnormal in phase 1.
+We save the extracted abnormalities and locations in a matrix per radio report.
+"""
 
 ###############################################################################################################
 # Extract the abnormalities and locations on the full report level (not sentence level)------------------------
@@ -49,38 +51,36 @@ class RadLabel(object):
         
         self.save_output_files = save_output_files
 
-        #Run
         if not self.data.empty:
             self.run_all()
     
     def run_all(self):
         print(f'\nWorking on term search for {self.setname} dataset.')
 
-        #pad sentences with spaces to facilitate term search of words at 
-        #the beginning and end of sentences
+        # Pad sentences with spaces to facilitate term search of words at the beginning and end of sentences
         self.data['Sentence'] = [' '+x+' ' for x in self.data['Sentence'].values.tolist()] 
         print(f'{self.setname} dataset has {self.data.shape[0]} sentences')
               
-        #Get unique list of filenames (used in multiple methods)
+        # Get unique list of filenames (used in multiple methods)
         self.uniq_set_files = [x for x in set(self.data['Filename'].values.tolist())]
         self.uniq_set_files.sort()
 
-        #Make a seperate sick and healthy sentence dataframe
+        # Make a seperate sick and healthy sentence dataframe
         self.sickdf, self.healthydf = self.pick_out_sick_sentences()
 
-        #Initialize dictionaries from vocab files. These dictionaries contain all the search terms used to label the abnormal sentences.
+        # Initialize dictionaries from vocab files. These dictionaries contain all the search terms used to label the abnormal sentences.
         self.initialize_vocabulary_dicts() 
         
-        #Run SARLE term search step
-        #This creates an outputfile which is a dictionary where the keys are filenames (report IDs), 
+        # Run SARLE term search step
+        # This creates an outputfile which is a dictionary where the keys are filenames (report IDs), 
         # and the values are binary pandas dataframes. A single pandas dataframe is
         # organized with abnormalisities along the rows and locations alomng the columns.
         self.obtain_sarle_complex_labels()     
 
-        #Obtain disea-only labels and binarise the outputs
+        # Obtain disea-only labels and binarise the outputs
         self.abnormality_out = self.binarize_complex_labels(chosen_labels=list(self.mega_abnormality_dict.keys()), label_type='abnormality')
 
-        #Save output
+        # Save output
         if self.save_output_files: 
             self.basic_save()
 
@@ -88,7 +88,7 @@ class RadLabel(object):
         ###########################################################################################
         # Evaluation of phase 2 performance #------------------------------------------------------
         ###########################################################################################
-        #Evaluate performance of phase 2, abnormality and location detection
+        # Evaluate performance of phase 2, abnormality and location detection
         if self.setname == 'test' and self.data.shape[0] != 0:
             term_search_performance(self)
         if self.setname == 'test' and self.data.shape[0] == 0:
@@ -129,30 +129,30 @@ class RadLabel(object):
             other_abnormality = open(os.path.join(self.results_dir,'train_other_abnormality_sentences.txt'),'a')
             other_location = open(os.path.join(self.results_dir,'train_other_location_sentences.txt'),'a')
 
-        #Fill self.out with dataframes of predicted labels:
+        # Fill self.out with dataframes of predicted labels:
         for filename in self.uniq_set_files:
-            #selected_out is for this filename only:
+            # Selected_out is for this filename only:
             selected_out = pd.DataFrame(np.zeros((len(list(self.mega_abnormality_dict.keys()))+1,
                                               len(list(self.mega_loc_dict.keys()))+1)),
                            columns = list(self.mega_loc_dict.keys())+['other_location'],
                            index = list(self.mega_abnormality_dict.keys())+['other_abnormality'])     
             selected_sickdf = self.sickdf[self.sickdf['Filename']==filename]
             for sentence in selected_sickdf['Sentence'].values.tolist():
-                #the temp dfs, index is keyterms and column is 'SentenceValue'
+                # The temp dfs, index is keyterms and column is 'SentenceValue'
                 temp_location = self.return_temp_for_location_search(sentence)
                 temp_abnormality = self.return_temp_for_abnormality_search(sentence)
                 
-                #iterate through locations first
+                # Iterate through locations first
                 for location in temp_location.index.values.tolist():
                     if temp_location.at[location,'SentenceValue'] > 0:
-                        #once you know the location, figure out the abnormality
+                        # Once you know the location, figure out the abnormality
                         location_recorded = False
                         for abnormality in temp_abnormality.index.values.tolist():
                             if temp_abnormality.at[abnormality,'SentenceValue'] > 0 :
                                 selected_out.at[abnormality, location] = 1
                                 location_recorded = True
                         if not location_recorded:
-                            #makes sure every location gets recorded
+                            # Makes sure every location gets recorded
                             if self.use_other_abnormality == True:
                                 selected_out.at['other_abnormality', location] = 1
                             else:    
@@ -160,11 +160,11 @@ class RadLabel(object):
                             if self.setname == 'train':
                                 other_abnormality.write(location+'\t'+sentence+'\n')
                 
-                #iterate through abnormality second and make sure none were missed
+                # Iterate through abnormality second and make sure none were missed
                 for abnormality in temp_abnormality.index.values.tolist():
                     if temp_abnormality.at[abnormality,'SentenceValue'] > 0:
                         if np.sum(selected_out.loc[abnormality,:].values) == 0:
-                            #i.e. if we haven't recorded that abnormality yet,
+                            # i.e. if we haven't recorded that abnormality yet,
                             if self.use_other_location == True:
                                 selected_out.at[abnormality,'other_location'] = 1
                             else:
@@ -173,10 +173,10 @@ class RadLabel(object):
                                 other_location.write(abnormality+'\t'+sentence+'\n')
 
             self.out_bin[filename] = selected_out
-        #now self.outbin should contain a dataframe for every report. Each dataframe has the abnormality as rows and the location as columns.
+        # Now self.outbin should contain a dataframe for every report. Each dataframe has the abnormality as rows and the location as columns.
     
     def initialize_vocabulary_dicts(self):
-        #Load dictionaries 
+        # Load dictionaries 
         self.mega_loc_dict = dict()
         self.mega_abnormality_dict = return_abnormality_terms()
 
@@ -187,15 +187,15 @@ class RadLabel(object):
         <abnormality_dict>, for the string <sentence>
         <body_region> is 'lung' or 'heart' or 'other.' Determines how/whether
             the abnormality_dict will be used here"""
-        #temp is a dataframe for this particular sentence ONLY
+        # Temp is a dataframe for this particular sentence ONLY
         temp = pd.DataFrame(np.zeros((len(list(self.mega_loc_dict.keys())),1)),
                                         index = list(self.mega_loc_dict.keys()),
                                         columns = ['SentenceValue'])
         
-        #look for location phrases
+        # Look for location phrases
         for locterm in self.mega_loc_dict.keys():
             locterm_present = RadLabel.label_for_keyterm_and_sentence(locterm, sentence, self.mega_loc_dict)
-            if locterm_present: #update out dataframe for specific lung location
+            if locterm_present: # Update out dataframe for specific lung location
                 temp.at[locterm,'SentenceValue'] = 1
         
         return temp
@@ -204,14 +204,14 @@ class RadLabel(object):
     def return_temp_for_abnormality_search(self, sentence):
         """Return a dataframe called <temp> which reports the results of
         the abnormality term search defined by <abnormality_dict> for the string <sentence>"""
-        #temp is a dataframe for this particular sentence ONLY
+        # Temp is a dataframe for this particular sentence ONLY
         temp = pd.DataFrame(np.zeros((len(list(self.mega_abnormality_dict.keys())),1)),
                                         index = list(self.mega_abnormality_dict.keys()),
                                         columns = ['SentenceValue'])
-        #Look for abnormality phrases
+        # Look for abnormality phrases
         for abnormalityterm in self.mega_abnormality_dict.keys():
             abnormalityterm_present = RadLabel.label_for_keyterm_and_sentence(abnormalityterm, sentence, self.mega_abnormality_dict)
-            if abnormalityterm_present: #update out dataframe for specific lung location
+            if abnormalityterm_present: # Update out dataframe for specific lung location
                 temp.at[abnormalityterm,'SentenceValue'] = 1
 
         return temp
@@ -223,18 +223,18 @@ class RadLabel(object):
         sickdf = copy.deepcopy(self.data)
         healthydf = copy.deepcopy(self.data)
 
-        #for if you have a custom dataset that you labeled (and want to use hybrid)
+        # For if you have a custom dataset that you labeled (and want to use hybrid)
         if self.sarle_variant == 'hybrid':
             sets_use_sentence_level_grtruth = ['train']
             sets_use_pred_sentence_labels = ['test', 'predict'] #we have a GT for test we should use it. only during the evaluation
         
-        #for if you have a custom dataset without labels (you need to use rules)
+        # For if you have a custom dataset without labels (you need to use rules)
         elif self.sarle_variant == 'rules':
-            sets_use_sentence_level_grtruth = [] #no ground truth available 
+            sets_use_sentence_level_grtruth = [] #No ground truth available 
             sets_use_pred_sentence_labels = ['train','test','predict']
 
         if self.setname in sets_use_sentence_level_grtruth:
-            #BinLabel is 1 or 0 based off of Label which is 's' or 'h'
+            # BinLabel is 1 or 0 based off of Label which is 's' or 'h'
             sickdf = sickdf[sickdf['BinLabel'] == 1]
             healthydf = healthydf[healthydf['BinLabel'] == 0]
         elif self.setname in sets_use_pred_sentence_labels:
@@ -265,14 +265,14 @@ class RadLabel(object):
         for any_term in termdict[keyterm]['Any']:
             if any_term in sentence:
                 label = 1
-        if label == 0: #if label is still 0 check for secondary equivalent terms
+        if label == 0: # If label is still 0 check for secondary equivalent terms
             if 'Term1' in termdict[keyterm].keys():
                 for term1 in termdict[keyterm]['Term1']:
                     for term2 in termdict[keyterm]['Term2']:
                         if (term1 in sentence) and (term2 in sentence):
                             label = 1
                             break
-        #Dealing with 'Exclude'
+        # Dealing with 'Exclude'
         if 'Exclude' in termdict[keyterm].keys():
             for banned_term in termdict[keyterm]['Exclude']:
                 if banned_term in sentence:

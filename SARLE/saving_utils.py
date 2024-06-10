@@ -87,7 +87,7 @@ def save_results(dataset, sarle_variant, term_search_dir):
         phase2_results.append([pseudo_id, abnormal_parts, abnormality_x_locations])
         
         ###########################################################################################################
-        # Fill CT-net results
+        # Fill all_labels results
         ############################################################################################################
         
         if sarle_variant == 'rules':

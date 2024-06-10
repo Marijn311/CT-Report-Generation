@@ -37,7 +37,6 @@ class ClassifySentences(object):
         self._prepare_data()
         self._run_fasttext_model()
     
-    # Data Handling #-----------------------------------------------------------
     def _prepare_data(self):
         """Save the fasttext input files to disk and save the corresponding
         filename order as self.data_set_filename_order"""
@@ -58,7 +57,6 @@ class ClassifySentences(object):
             data_set.append([label,sentence])
         np.savetxt(os.path.join(self.results_dir,'fasttext_'+setname+'_set.txt'), np.array(data_set), fmt='%s')
     
-    # Fasttext Model #----------------------------------------------------------
     def _run_fasttext_model(self):
         """Use the prepared train and test data to run the fasttext model"""
         model = fasttext.train_unsupervised(os.path.join(self.results_dir,'fasttext_train_set.txt'), model='skipgram')
@@ -79,12 +77,11 @@ class ClassifySentences(object):
     def _get_preds_and_perf(self, setname, data):
         """Report overall performance and save binary labels, predicted
         labels, and predicted probabilities in <data>"""
-        #Make predictions
+        # Make predictions
         print('*** '+setname+' ***')
         data = self._extract_predictions(data)
         
-        #Report performance
-        #evaluation.report_sentence_level_eval(data, setname, 'Fasttext') 
+        # Report performance
         if setname != 'predict':
             accuracy, auc, average_precision = calculate_eval_metrics(predicted_labels=data['PredLabel'].values.tolist(), predicted_probs=data['PredProb'].values.tolist(), true_labels=data['BinLabel'].values.tolist())
             print('Accuracy:',accuracy)
@@ -99,9 +96,9 @@ class ClassifySentences(object):
         predicted_labels = [x[0].replace('__label__','') for x in preds_h_or_s[0]]
         predicted_probs = [x[0] for x in preds_h_or_s[1]]
         
-        #Now flip the predicted probs for the healthy because we want to
-        #output the probability that the sentence is sick.
-        #Also binarize the predicted labels to 1 and 0 from s and h
+        # Now flip the predicted probs for the healthy because we want to
+        # output the probability that the sentence is sick.
+        # Also binarize the predicted labels to 1 and 0 from s and h
         predicted_labels_final = []
         predicted_probs_final = []
         for index in range(len(sentences)):
@@ -110,8 +107,8 @@ class ClassifySentences(object):
                 predicted_probs_final.append(predicted_probs[index])
             elif predicted_labels[index] == 'h':
                 predicted_labels_final.append(0)
-                #one minus, because we want this to report the probability of being
-                #sick (which is the opposite of the probability of being healthy)
+                # One minus, because we want this to report the probability of being
+                # sick (which is the opposite of the probability of being healthy)
                 predicted_probs_final.append(1 - predicted_probs[index])
             else:
                 assert False
