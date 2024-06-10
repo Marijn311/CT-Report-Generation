@@ -1,6 +1,5 @@
 import os
 import pickle
-import datetime
 import pandas as pd
 from main import DATASET_PATH
 from abnormality_vocabulary import ABNORMALITY_LIST
@@ -10,8 +9,7 @@ def configure_results_dirs(sarle_variant):
     if not os.path.isdir('SARLE_results'):
         os.mkdir('SARLE_results')
     
-    results_dir = os.path.join('SARLE_results',datetime.datetime.today().strftime('%Y-%m-%d')
-                               +'_'+sarle_variant+'_otherabnormalitys')
+    results_dir = os.path.join('SARLE_results', 'SARLE_'+sarle_variant)
     if not os.path.isdir(results_dir):
         os.mkdir(results_dir)
 
@@ -22,7 +20,7 @@ def configure_results_dirs(sarle_variant):
     else:
         sent_class_dir = ''
     
-    term_search_dir = os.path.join(results_dir, '1_term_search')
+    term_search_dir = os.path.join(results_dir, 'term_search')
     if not os.path.isdir(term_search_dir):
         os.mkdir(term_search_dir)
 

@@ -27,7 +27,7 @@ class ClassifySentences(object):
         
         # For the classifier, train and test data are required
         assert not self.train_data.empty, 'Training data set needs to be defined when using sarle hybrid'
-        assert not self.test_data.empty
+        assert not self.test_data.empty, 'Test data set needs to be defined when using sarle hybrid, to evaluate the model'
         
         self.results_dir = results_dir
         self.save_model_files = save_model_files
