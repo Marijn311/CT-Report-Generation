@@ -1,4 +1,8 @@
-# CT-To-Report
+# CT-Report-Generation
+<div align="center">
+  <img src="icon.png" alt="Icon" width="300"/>
+</div>
+
 
 ## Description
 This is the Python implementation of the work presented in "Automatically Generating Narrative-Style Radiology Reports from Volumetric CT Images; a Proof of Concept", available on [ArXiv](todo: include hyperlink) and this repository.
