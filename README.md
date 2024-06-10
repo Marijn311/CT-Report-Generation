@@ -1,6 +1,7 @@
 # CT-Report-Generation
-
-![icon](icon.png)
+<div align="center">
+  <img src="icon.png" alt="Icon" width="300"/>
+</div>
 
 
 ## Description
