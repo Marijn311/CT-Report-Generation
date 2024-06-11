@@ -1,12 +1,7 @@
 import os
 import numpy as np
 from evaluation import calculate_eval_metrics
-
-try:
-    import fasttext
-except:
-    #fasttext not available on Windows
-    print('Notification: fasttext not imported')
+import fasttext
 
 
 class ClassifySentences(object):

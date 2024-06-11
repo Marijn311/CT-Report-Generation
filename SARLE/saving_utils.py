@@ -12,19 +12,12 @@ def configure_results_dirs(sarle_variant):
     results_dir = os.path.join('SARLE_results', 'SARLE_'+sarle_variant)
     if not os.path.isdir(results_dir):
         os.mkdir(results_dir)
-
-    if sarle_variant=='hybrid':
-        sent_class_dir = os.path.join(results_dir, '0_sentences')
-        if not os.path.isdir(sent_class_dir):
-            os.mkdir(sent_class_dir)
-    else:
-        sent_class_dir = ''
     
     term_search_dir = os.path.join(results_dir, 'term_search')
     if not os.path.isdir(term_search_dir):
         os.mkdir(term_search_dir)
 
-    return results_dir, sent_class_dir, term_search_dir
+    return results_dir, '', term_search_dir
 
 
 def save_results(dataset, sarle_variant, term_search_dir):

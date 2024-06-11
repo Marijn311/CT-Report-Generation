@@ -1,10 +1,9 @@
 import torch
 from transformers import BertTokenizerFast
+from transformers import BioGptTokenizer 
 from tensorflow.keras.preprocessing.text import Tokenizer 
-from transformers import AutoTokenizer
 import pickle
 import os
-from transformers import BioGptTokenizer 
 
 # Set the seeds
 RANDOM_SEED = 21
