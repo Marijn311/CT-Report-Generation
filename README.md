@@ -28,20 +28,20 @@ If you have more computational resources available you can make several improvem
 Hence, the first step to using this framework is to obtain a dataset of volumetric CT images with associated narrative-style radiology reports.
 The dataset should be formatted as:
 
-[main image dir]<br>
-│   [data folder_1]<br>
-│   │   [data folder_1]_[patient_id_1]<br>
-│   │   │   [image file name]<br>
-│   │   [data folder_1]_[patient_id_2]<br>
-│   │   │   [image file name]<br>
+[main_image_dir]<br>
+│   [data_folder_1]<br>
+│   │   [data_folder_1]\_[patient_id_1]<br>
+│   │   │   [image_file_name]<br>
+│   │   [data_folder_1]\_[patient_id_2]<br>
+│   │   │   [image_file_name]<br>
 │   │   ...<br>
 │   │   labels.xlsx (created by SARLE from reports.docx)<br>
 │   │   reports.docx<br>
-│   [data folder_2]<br>
-│   │   [data folder_2]_[patient_id_1]<br>
-│   │   │   [image file name]<br>
-│   │   [data folder_2]_[patient_id_2]<br>
-│   │   │   [image file name]<br>
+│   [data_folder_2]<br>
+│   │   [data_folder_2]\_[patient_id_1]<br>
+│   │   │   [image_file_name]<br>
+│   │   [data_folder_2]\_[patient_id_2]<br>
+│   │   │   [image_file_name]<br>
 │   │   ...<br>
 │   │   labels.xlsx (created by SARLE from reports.docx)<br>
 │   │   reports.docx<br>
