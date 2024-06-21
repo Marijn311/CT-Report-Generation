@@ -5,14 +5,14 @@
 
 
 ## Description
-This is the Python implementation of the work presented in "Automatically Generating Narrative-Style Radiology Reports from Volumetric CT Images; a Proof of Concept", available on [ArXiv](todo: include hyperlink) and this repository.
+This is the Python implementation of the work presented in "Automatically Generating Narrative-Style Radiology Reports from Volumetric CT Images; a Proof of Concept", available on [ArXiv](https://arxiv.org/abs/2406.12599) and this repository.
 
 This repository is split into three main sections: <br>
 * "Encoder" contains a Pytorch Lightning framework to train a (pseudo) 3D CNN to perform multi-label classification on volumetric CT data.<br>
 * "Decoder" contains a Pytorch Lightning framework to train a LLM to generate narrative-style radiology reports, conditioned on the encoded images.<br>
 * "SARLE" contains an algorithm to automatically mine classification labels from radiology reports [1].<br>
 
-If you find this work useful in your research, please consider citing me: (Todo include bibtex).<br>
+If you find this work useful in your research, please consider citing me: Marijn Borghouts. Automatically Generating Narrative-Style Radiology Reports from Volumetric CT Images; a Proof of Concept. 2024. https://arxiv.org/abs/2406.12599 <br><br>
 If you have any question you can reach me at m.m.borghouts@student.tue.nl (no promises or guanrantees).<br>
 
 
